@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title or Header (Optional) -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Multiplayer Menu"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Button to start scanning for Bluetooth devices -->
+    <Button
+        android:id="@+id/button_scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan for Devices"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Button to host a game -->
+    <Button
+        android:id="@+id/button_host_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Host Game"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- ListView to display discovered Bluetooth devices -->
+    <ListView
+        android:id="@+id/device_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:scrollingCache="false" />
+
+</LinearLayout>
