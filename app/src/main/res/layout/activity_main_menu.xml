@@ -14,9 +14,15 @@
         android:text="@string/singleplayer" />
 
     <Button
-        android:id="@+id/button_multiplayer"
+        android:id="@+id/button_multiplayer1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/multiplayer" />
+        android:text="@string/multiplayer1" />
+
+    <Button
+        android:id="@+id/button_multiplayer2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/multiplayer2" />
 
 </LinearLayout>

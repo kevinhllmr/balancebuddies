@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Balance Buddies</string>
     <string name="level_text">Level %1$d</string>
-    <string name="singleplayer">Player 1</string>
-    <string name="multiplayer">Player 2</string>
+    <string name="singleplayer">Singleplayer</string>
+    <string name="multiplayer1">Player 1</string>
+    <string name="multiplayer2">Player 2</string>
     <string name="level">Level</string>
 </resources>
