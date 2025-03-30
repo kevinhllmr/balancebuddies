@@ -2,22 +2,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.kevin.balancebuddies">
 
-    <!-- Bluetooth permissions -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+    <uses-feature android:name="android.hardware.wifi.direct" android:required="true"/>
 
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
-        android:theme="@style/Theme.BalanceBuddies">
+        android:theme="@style/Theme.BalanceBuddies"
+        tools:ignore="MissingApplicationIcon">
 
         <activity
             android:name=".MainMenuActivity"
-            android:screenOrientation="landscape"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,18 +27,8 @@
         </activity>
 
         <activity
-            android:name=".LevelSelectionActivity"
-            android:screenOrientation="landscape"
-            android:exported="false"
-            tools:ignore="DiscouragedApi" />
-        <activity
             android:name=".GameActivity"
-            android:screenOrientation="landscape"
             android:exported="false" />
-
-        <activity android:name=".MultiplayerMenuActivity" />
-        <activity android:name=".HostGameActivity" />
-        <activity android:name=".JoinGameActivity" />
 
     </application>
 </manifest>

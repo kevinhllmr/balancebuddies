@@ -3,6 +3,6 @@
     android:id="@+id/level_button"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Level"
+    android:text="@string/level"
     android:padding="16dp"
     android:textSize="18sp" />

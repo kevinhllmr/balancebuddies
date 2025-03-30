@@ -3,9 +3,9 @@ package com.kevin.balancebuddies
 import android.graphics.Canvas
 
 abstract class Level {
-    abstract val walls: List<GameWall>   // List of GameWall objects
-    abstract val gameGoal: GameGoal?     // A GameGoal object for each level
-    abstract val ballStartPosition: Pair<Float, Float>  // Ball starting position
+    abstract val walls: List<GameWall>
+    abstract val gameGoal: GameGoal?
+    abstract val ballStartPosition: Pair<Float, Float>
 
     abstract fun onLevelStart()
     abstract fun checkCollisions(ball: Ball): Boolean
@@ -17,10 +17,10 @@ abstract class Level {
                 ball.x - ball.radius < wall.right &&
                 ball.y + ball.radius > wall.top &&
                 ball.y - ball.radius < wall.bottom) {
-                return true  // Return true if a collision is detected
+                return true
             }
         }
-        return false  // No collision detected
+        return false
     }
 
     fun drawWalls(canvas: Canvas) {
@@ -30,15 +30,13 @@ abstract class Level {
         }
     }
 
-    // Check if the ball reaches the goal
     fun checkBallReachedGoal(ball: Ball): Boolean {
         gameGoal?.let {
-            // Check if the ball is completely inside the goal (falling into it like a hole)
             return ball.x - ball.radius > it.x &&
                     ball.x + ball.radius < it.x + it.width &&
                     ball.y - ball.radius > it.y &&
                     ball.y + ball.radius < it.y + it.height
         }
-        return false  // Return false if no goal is set or the ball hasn't reached the goal
+        return false
     }
 }

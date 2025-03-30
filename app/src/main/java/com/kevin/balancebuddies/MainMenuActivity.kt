@@ -10,20 +10,22 @@ class MainMenuActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         actionBar?.hide()
-
         setContentView(R.layout.activity_main_menu)
 
-        val singleplayerButton: Button = findViewById(R.id.button_singleplayer)
-        val multiplayerButton: Button = findViewById(R.id.button_multiplayer)
+        val singlePlayerButton: Button = findViewById(R.id.button_singleplayer)
+        val joinAsSecondPlayer: Button = findViewById(R.id.button_multiplayer)
 
-        singleplayerButton.setOnClickListener {
-            val intent = Intent(this, LevelSelectionActivity::class.java)
+        singlePlayerButton.setOnClickListener {
+            val intent = Intent(this, GameActivity::class.java)
+            intent.putExtra("MODE", "singleplayer")
+            intent.putExtra("IS_HOST", true)
             startActivity(intent)
         }
 
-        multiplayerButton.setOnClickListener {
-            // Start the multiplayer menu where the user can either host or join a game
-            val intent = Intent(this, MultiplayerMenuActivity::class.java)
+        joinAsSecondPlayer.setOnClickListener {
+            val intent = Intent(this, GameActivity::class.java)
+            intent.putExtra("MODE", "multiplayer")
+            intent.putExtra("IS_HOST", false)
             startActivity(intent)
         }
     }

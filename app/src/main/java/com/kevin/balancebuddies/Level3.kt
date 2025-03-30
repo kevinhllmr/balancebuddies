@@ -4,10 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 
-class Level2 : Level() {
-    override val walls = Levels.getLevelData(2).walls
-    override val gameGoal = Levels.getLevelData(2).goal
-    override val ballStartPosition: Pair<Float, Float> = Pair(200f, 200f)
+class Level3 : Level() {
+    override val walls = Levels.getLevelData(3).walls
+    override val gameGoal = Levels.getLevelData(3).goal
+    override val ballStartPosition: Pair<Float, Float> = Pair(2100f, 200f)
 
     override fun onLevelStart() {
     }
@@ -29,6 +29,6 @@ class Level2 : Level() {
             textSize = 40f
             textAlign = Paint.Align.RIGHT
         }
-        canvas.drawText("Level 2", canvas.width - 40f, 50f, paint)
+        canvas.drawText("Level 3", canvas.width - 40f, 50f, paint)
     }
 }
