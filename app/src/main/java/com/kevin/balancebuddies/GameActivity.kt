@@ -19,6 +19,8 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.util.Log.e
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -100,8 +102,16 @@ class GameActivity : Activity(), SensorEventListener {
 
             wifiP2pManager = getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
             wifiP2pChannel = wifiP2pManager.initialize(this, mainLooper, null)
+            val peerListListener = WifiP2pManager.PeerListListener { peers ->
+                if (peers.deviceList.isNotEmpty()) {
+                    Log.d("GameActivity", "Updated peers received: ${peers.deviceList}")
+                    showDeviceList(peers.deviceList.toList())
+                } else {
+                    Log.d("GameActivity", "Still no peers found")
+                }
+            }
 
-            receiver = WifiDirectReceiver(wifiP2pManager, wifiP2pChannel)
+            receiver = WifiDirectReceiver(wifiP2pManager, wifiP2pChannel, peerListListener)
             val intentFilter = IntentFilter().apply {
                 addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
                 addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
@@ -209,32 +219,7 @@ class GameActivity : Activity(), SensorEventListener {
     private fun joinWifiDirectServer() {
         thread {
             try {
-                wifiP2pManager.discoverPeers(wifiP2pChannel, object : WifiP2pManager.ActionListener {
-                    override fun onSuccess() {
-                        runOnUiThread {
-                            progressBar.visibility = View.VISIBLE
-                        }
-                    }
-
-                    override fun onFailure(reason: Int) {
-                        runOnUiThread {
-                            Toast.makeText(this@GameActivity, "Failed to start peer discovery", Toast.LENGTH_SHORT).show()
-                            progressBar.visibility = View.GONE
-                        }
-                    }
-                })
-
-                wifiP2pManager.requestPeers(wifiP2pChannel) { peers ->
-                    runOnUiThread {
-                        if (peers.deviceList.isNotEmpty()) {
-                            showDeviceList(peers.deviceList.toList())
-                            progressBar.visibility = View.GONE
-                        } else {
-                            Toast.makeText(this@GameActivity, "No available peers to connect to", Toast.LENGTH_SHORT).show()
-                            progressBar.visibility = View.GONE
-                        }
-                    }
-                }
+                discoverPeersWithRetry(maxRetries = 3, delayMillis = 3000)
             } catch (e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
@@ -243,6 +228,52 @@ class GameActivity : Activity(), SensorEventListener {
                 }
             }
         }
+    }
+
+    private fun discoverPeersWithRetry(maxRetries: Int, delayMillis: Long) {
+        var retryCount = 0
+
+        fun attemptDiscovery() {
+            wifiP2pManager.discoverPeers(wifiP2pChannel, object : WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+                    runOnUiThread {
+                        progressBar.visibility = View.VISIBLE
+                    }
+                    Log.d("GameActivity", "Peer discovery started successfully")
+                }
+
+                override fun onFailure(reason: Int) {
+                    runOnUiThread {
+                        Toast.makeText(this@GameActivity, "Failed to start peer discovery", Toast.LENGTH_SHORT).show()
+                        progressBar.visibility = View.GONE
+                    }
+                    Log.d("GameActivity", "Peer discovery failed, reason: $reason")
+                }
+            })
+
+            wifiP2pManager.requestPeers(wifiP2pChannel) { peers ->
+                runOnUiThread {
+                    if (peers.deviceList.isNotEmpty()) {
+                        Log.d("GameActivity", "Peers discovered: ${peers.deviceList}")
+                        showDeviceList(peers.deviceList.toList())
+                        progressBar.visibility = View.GONE
+                    } else {
+                        if (retryCount < maxRetries) {
+                            retryCount++
+                            Log.d("GameActivity", "No peers found, retrying ($retryCount/$maxRetries)...")
+                            Thread.sleep(delayMillis)
+                            attemptDiscovery()
+                        } else {
+                            Toast.makeText(this@GameActivity, "No available peers to connect to", Toast.LENGTH_SHORT).show()
+                            Log.d("GameActivity", "No available peers to connect to after $maxRetries retries")
+                            progressBar.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
+
+        attemptDiscovery()
     }
 
     private fun showDeviceList(deviceList: List<WifiP2pDevice>) {
@@ -319,14 +350,16 @@ class GameActivity : Activity(), SensorEventListener {
     }
 
     private fun updateCanvas() {
-        val canvas = surfaceHolder.lockCanvas()
-        if (canvas != null) {
-            canvas.drawPaint(backgroundPaint)
+        if (surfaceHolder.surface.isValid) {
+            val canvas = surfaceHolder.lockCanvas()
+            try {
+                canvas.drawPaint(backgroundPaint)
+                level.draw(canvas)
+                canvas.drawCircle(ball.x, ball.y, ball.radius, ballPaint)
 
-            level.draw(canvas)
-            canvas.drawCircle(ball.x, ball.y, ball.radius, ballPaint)
-
-            surfaceHolder.unlockCanvasAndPost(canvas)
+            } finally {
+                surfaceHolder.unlockCanvasAndPost(canvas)
+            }
         }
     }
 
@@ -416,5 +449,37 @@ class GameActivity : Activity(), SensorEventListener {
             }
         }
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isRunning = false
+        sensorManager.unregisterListener(this)
+
+
+        try {
+            unregisterReceiver(accelerometerReceiver)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
+
+        if (isMultiplayer) {
+            try {
+                unregisterReceiver(receiver)
+            } catch (e: IllegalArgumentException) {
+                e.printStackTrace()
+            }
+        }
+
+        if (isMultiplayer && isHost) {
+            wifiP2pManager.removeGroup(wifiP2pChannel, object : WifiP2pManager.ActionListener {
+                override fun onSuccess() {
+                }
+
+                override fun onFailure(reason: Int) {
+                    e("GameActivity", "Failed to remove Wi-Fi Direct group: $reason")
+                }
+            })
+        }
     }
 }
